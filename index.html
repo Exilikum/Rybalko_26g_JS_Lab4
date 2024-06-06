@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consumer Credit and Comments</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: grid;
+            grid-template-rows: auto auto;
+            gap: 20px;
+            padding: 20px;
+        }
+        .container {
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .comments {
+            margin-top: 20px;
+        }
+        .comment {
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+        }
+        .like, .dislike {
+            cursor: pointer;
+            color: blue;
+        }
+        .like.active, .dislike.active {
+            font-weight: bold;
+            color: green;
+        }
+        .dislike.active {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="credit-calculator">
+        <h2>Розрахунок термінів виплат по споживчому кредиту</h2>
+        <label for="loanAmount">Сума кредиту:</label>
+        <input type="number" id="loanAmount" placeholder="Введіть суму">
+        <br>
+        <label for="interestRate">Відсоткова ставка (%):</label>
+        <input type="number" id="interestRate" placeholder="Введіть відсоткову ставку">
+        <br>
+        <label for="monthlyPayment">Щомісячний платіж:</label>
+        <input type="number" id="monthlyPayment" placeholder="Введіть щомісячний платіж">
+        <br>
+        <button onclick="calculateTerm()">Розрахувати термін</button>
+        <p id="result"></p>
+    </div>
+
+    <div class="container" id="comments-section">
+        <h2>Коментарі</h2>
+        <div class="comments">
+            <div class="comment">
+                <p>Це дуже корисна стаття!</p>
+                <span class="like" onclick="toggleLike(this)">👍 Лайк (<span class="like-count">0</span>)</span>
+                <span class="dislike" onclick="toggleDislike(this)">👎 Дизлайк (<span class="dislike-count">0</span>)</span>
+            </div>
+            <div class="comment">
+                <p>Я не згоден з цим.</p>
+                <span class="like" onclick="toggleLike(this)">👍 Лайк (<span class="like-count">0</span>)</span>
+                <span class="dislike" onclick="toggleDislike(this)">👎 Дизлайк (<span class="dislike-count">0</span>)</span>
+            </div>
+        </div>
+        <p>Кількість позитивних поміток: <span id="total-likes">0</span></p>
+    </div>
+
+    <script>
+        function calculateTerm() {
+            const loanAmount = parseFloat(document.getElementById('loanAmount').value);
+            const interestRate = parseFloat(document.getElementById('interestRate').value) / 100;
+            const monthlyPayment = parseFloat(document.getElementById('monthlyPayment').value);
+
+            if (isNaN(loanAmount) || isNaN(interestRate) || isNaN(monthlyPayment) || loanAmount <= 0 || interestRate < 0 || monthlyPayment <= 0) {
+                document.getElementById('result').innerText = "Будь ласка, введіть коректні дані.";
+                return;
+            }
+
+            const monthlyRate = interestRate / 12;
+            const term = Math.ceil(loanAmount / (monthlyPayment - (loanAmount * monthlyRate)));
+            
+            if (term > 0) {
+                document.getElementById('result').innerText = `Термін виплат: ${term} місяців.`;
+            } else {
+                document.getElementById('result').innerText = "Неможливо здійснити виплати з даними параметрами.";
+            }
+        }
+
+        function toggleLike(element) {
+            const comment = element.closest('.comment');
+            const likeCountElement = comment.querySelector('.like-count');
+            const dislikeElement = comment.querySelector('.dislike');
+            const dislikeCountElement = comment.querySelector('.dislike-count');
+
+            if (element.classList.contains('active')) {
+                element.classList.remove('active');
+                likeCountElement.innerText = parseInt(likeCountElement.innerText) - 1;
+            } else {
+                element.classList.add('active');
+                likeCountElement.innerText = parseInt(likeCountElement.innerText) + 1;
+
+                if (dislikeElement.classList.contains('active')) {
+                    dislikeElement.classList.remove('active');
+                    dislikeCountElement.innerText = parseInt(dislikeCountElement.innerText) - 1;
+                }
+            }
+
+            updateTotalLikes();
+        }
+
+        function toggleDislike(element) {
+            const comment = element.closest('.comment');
+            const dislikeCountElement = comment.querySelector('.dislike-count');
+            const likeElement = comment.querySelector('.like');
+            const likeCountElement = comment.querySelector('.like-count');
+
+            if (element.classList.contains('active')) {
+                element.classList.remove('active');
+                dislikeCountElement.innerText = parseInt(dislikeCountElement.innerText) - 1;
+            } else {
+                element.classList.add('active');
+                dislikeCountElement.innerText = parseInt(dislikeCountElement.innerText) + 1;
+
+                if (likeElement.classList.contains('active')) {
+                    likeElement.classList.remove('active');
+                    likeCountElement.innerText = parseInt(likeCountElement.innerText) - 1;
+                }
+            }
+
+            updateTotalLikes();
+        }
+
+        function updateTotalLikes() {
+            let totalLikes = 0;
+            document.querySelectorAll('.like-count').forEach(likeCountElement => {
+                totalLikes += parseInt(likeCountElement.innerText);
+            });
+            document.getElementById('total-likes').innerText = totalLikes;
+        }
+    </script>
+</body>
+</html>
